@@ -75,19 +75,8 @@ object Huffman {
    *   }
    */
   def times(chars: List[Char]): List[(Char, Int)] = {
-
-    def loop(cl: List[Char], tl: List[(Char, Int)]): List[(Char, Int)] = cl match {
-      case List()  => tl
-      case y :: yl => loop(yl, insert(y, Nil, tl))
-    }
-
-    def insert(c: Char, left: List[(Char, Int)], right: List[(Char, Int)]): List[(Char, Int)] =
-      right match {
-        case List()  => (c, 1) :: left
-        case x :: xr => if (x._1 == c) (c, x._2 + 1) :: left ::: right else insert(c, x :: left, xr)
-      }
-
-    loop(chars, Nil)
+    
+    chars.map(x => (x, chars.count(_ == x))).distinct
   }
 
   /**
@@ -177,7 +166,7 @@ object Huffman {
    * frequencies from that text and creates a code tree based on them.
    */
   def createCodeTree(chars: List[Char]): CodeTree = 
-    until(singleton, combine)(makeOrderedLeafList(times(chars)))(0)
+    until(singleton, combine)(makeOrderedLeafList(times(chars))).head
 
   // Part 3: Decoding
 
@@ -236,8 +225,8 @@ object Huffman {
       case Leaf(char, weight) => charEnc.reverse
       case Fork(left, right, chars, weight) => 
         left match {
-          case Leaf(char, weight) => if(char == c) calculate(c, left, 0 :: charEnc) else calculate(c, right, 1 :: charEnc)
-          case Fork(left, right, chars, weight) => if(chars.contains(c)) calculate(c, left, 0 :: charEnc) else calculate(c, right, 1 :: charEnc)
+          case Leaf(charInner, weightInner) => if(charInner == c) calculate(c, left, 0 :: charEnc) else calculate(c, right, 1 :: charEnc)
+          case Fork(leftInner, rightInner, charsInner, weightInner) => if(chars.contains(c)) calculate(c, left, 0 :: charEnc) else calculate(c, right, 1 :: charEnc)
         }
     }
     
@@ -282,7 +271,7 @@ object Huffman {
    * use it in the `convert` method above, this merge method might also do some transformations
    * on the two parameter code tables.
    */
-  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = ???
+  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = a ::: b
 
   /**
    * This function encodes `text` according to the code tree `tree`.
@@ -290,5 +279,14 @@ object Huffman {
    * To speed up the encoding process, it first converts the code tree to a code table
    * and then uses it to perform the actual encoding.
    */
-  def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+  def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = 
+  {
+    val codeTable = convert(tree)
+    def loop(text: List[Char], bits: List[Bit]): List[Bit] = text match {
+      case List() => bits
+      case x :: xy => loop(xy, codeBits(codeTable)(x):::bits)
+    }
+    
+    loop(text, Nil)
+  }
 }

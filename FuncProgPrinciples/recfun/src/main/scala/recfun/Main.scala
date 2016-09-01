@@ -17,6 +17,13 @@ object Main {
    * Exercise 1
    */
   def pascal(c: Int, r: Int): Int = {
+    if(c == r || c==0) 1
+    else if(c < 0 || r < 0) 0
+    else 
+      pascal(c, r - 1) + pascal(c - 1, r - 1)
+  }
+  
+  def pascalI(c: Int, r: Int): Int = {
     @tailrec
     def loop(row: List[Int], rCur: Int): List[Int] = {
       if (rCur < r) {
