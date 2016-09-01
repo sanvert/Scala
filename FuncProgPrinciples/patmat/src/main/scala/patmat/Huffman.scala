@@ -226,13 +226,18 @@ object Huffman {
       case Fork(left, right, chars, weight) => 
         left match {
           case Leaf(charInner, weightInner) => if(charInner == c) calculate(c, left, 0 :: charEnc) else calculate(c, right, 1 :: charEnc)
-          case Fork(leftInner, rightInner, charsInner, weightInner) => if(chars.contains(c)) calculate(c, left, 0 :: charEnc) else calculate(c, right, 1 :: charEnc)
+          case Fork(leftInner, rightInner, charsInner, weightInner) => if(charsInner.contains(c)) calculate(c, left, 0 :: charEnc) else calculate(c, right, 1 :: charEnc)
         }
     }
     
     loopTxt(text, Nil)
   }
 
+  def main(args: Array[String]) {
+    var t2 = Fork(Fork(Leaf('a',2), Leaf('b',3), List('a','b'), 5), Leaf('d',4), List('a','b','d'), 9)
+    print(decode(t2, encode(t2)("abadd".toList)))
+    print(decodedSecret)
+  }
   // Part 4b: Encoding using code table
 
   type CodeTable = List[(Char, List[Bit])]
