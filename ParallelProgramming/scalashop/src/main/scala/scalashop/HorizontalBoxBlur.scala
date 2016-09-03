@@ -2,7 +2,7 @@ package scalashop
 
 import org.scalameter._
 import common._
-import scala.concurrent.forkjoin.ForkJoinTask
+import java.util.concurrent.ForkJoinTask
 
 object HorizontalBoxBlurRunner {
 
@@ -54,7 +54,6 @@ object HorizontalBoxBlur {
       x = 0
       y += 1
     }  
-    
   }
 
   /** Blurs the rows of the source image in parallel using `numTasks` tasks.
@@ -65,20 +64,20 @@ object HorizontalBoxBlur {
    */
   def parBlur(src: Img, dst: Img, numTasks: Int, radius: Int): Unit = {
   // TODO implement using the `task` construct and the `blur` method
-
-    if(numTasks < 0) blur(src, dst, 0, src.height, radius)
-    else {
-      val taskList: List[ForkJoinTask[Unit => Unit]] = List[ForkJoinTask[Unit => Unit]]()
-      val range = 0.to(src.height - 1).by(Math.ceil(src.height.toDouble/numTasks).toInt)
-      if(range.last != range.end) {
-        (range.zip(range.tail):+(range.last, src.height)).foreach { x => task{blur(src, dst, x._1, x._2, radius)} :: taskList }
-      }
-      else 
-        range.zip(range.tail).foreach { x => task{blur(src, dst, x._1, x._2, radius)} :: taskList }
-      
-      taskList.foreach { x => x.join() }
+    def gatherAndJoin(ranges: List[(Int, Int)], taskList: List[ForkJoinTask[Unit]]): Unit = ranges match{
+      case List() => taskList.foreach { x => x.join() }
+      case x :: xs => gatherAndJoin(xs, task{blur(src, dst, x._1, x._2, radius)} :: taskList)
     }
     
+    if(numTasks < 0) blur(src, dst, 0, src.height, radius)
+    else {
+      var taskList: List[ForkJoinTask[Unit]] = List[ForkJoinTask[Unit]]()
+      val range = 0.to(src.height).by(Math.ceil(src.height.toDouble/numTasks).toInt)
+      if(range.last != range.end) {
+        task{blur(src, dst, range.last, src.height, radius)}
+      }
+      gatherAndJoin(range.zip(range.tail).toList, Nil)
+    }    
   }
 
 }

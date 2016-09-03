@@ -42,7 +42,9 @@ class BlurSuite extends FunSuite {
     src(0, 1) = 3; src(1, 1) = 4; src(2, 1) = 5
     src(0, 2) = 6; src(1, 2) = 7; src(2, 2) = 8
 
-    HorizontalBoxBlur.blur(src, dst, 0, 2, 1)
+    //HorizontalBoxBlur.blur(src, dst, 0, 2, 1)
+    HorizontalBoxBlur.blur(src, dst, 0, src.height, 1)
+    //HorizontalBoxBlur.parBlur(src, dst, 4, 1)
 
     def check(x: Int, y: Int, expected: Int) =
       assert(dst(x, y) == expected,

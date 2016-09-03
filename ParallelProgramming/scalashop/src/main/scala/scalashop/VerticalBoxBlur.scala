@@ -68,7 +68,7 @@ object VerticalBoxBlur {
     if(numTasks < 0) blur(src, dst, 0, src.width, radius)
     else {
       val taskList: List[ForkJoinTask[Unit => Unit]] = List[ForkJoinTask[Unit => Unit]]()
-      val range = 0.to(src.width - 1).by(Math.ceil(src.width.toDouble/numTasks).toInt)
+      val range = 0.to(src.width).by(Math.ceil(src.width.toDouble/numTasks).toInt)
       if(range.last != range.end) {
         (range.zip(range.tail):+(range.last, src.width)).foreach { x => task{blur(src, dst, x._1, x._2, radius)} :: taskList }
       }
