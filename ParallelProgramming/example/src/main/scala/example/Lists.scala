@@ -53,14 +53,14 @@ object Lists {
   def max(xs: List[Int]): Int = {
     if (xs.isEmpty) throw new NoSuchElementException
 
-    def compareAndReturn(xs: List[Int], x: Int, y: Int): Int = {
+    def compare(xs: List[Int], x: Int, y: Int): Int = {
       if (x == y) xs(x)
       else {
         val mid = (x + y) / 2
-        val (a, b) = common.parallel(compareAndReturn(xs, x, mid), compareAndReturn(xs, mid + 1, y))
+        val (a, b) = common.parallel(compare(xs, x, mid), compare(xs, mid + 1, y))
         if (a <= b) b else a
       }
     }
-    compareAndReturn(xs, 0, xs.size - 1)
+    compare(xs, 0, xs.size - 1)
   }
 }
