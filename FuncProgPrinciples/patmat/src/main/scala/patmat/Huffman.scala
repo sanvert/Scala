@@ -134,7 +134,7 @@ object Huffman {
   }
   
   def combine(trees: List[CodeTree]): List[CodeTree] = trees match {
-    case x :: y :: Nil => trees  
+    case x :: Nil => trees  
     case x :: y :: xs => combine(insertFork(new Fork(x, y, chars(x) ::: chars(y), weight(x) + weight(y)), xs))
     case _ => trees    
   }
@@ -233,11 +233,6 @@ object Huffman {
     loopTxt(text, Nil)
   }
 
-  def main(args: Array[String]) {
-    var t2 = Fork(Fork(Leaf('a',2), Leaf('b',3), List('a','b'), 5), Leaf('d',4), List('a','b','d'), 9)
-    print(decode(t2, encode(t2)("abadd".toList)))
-    print(decodedSecret)
-  }
   // Part 4b: Encoding using code table
 
   type CodeTable = List[(Char, List[Bit])]
